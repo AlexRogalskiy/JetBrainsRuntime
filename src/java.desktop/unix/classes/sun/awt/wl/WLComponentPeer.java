@@ -43,7 +43,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
-import java.awt.Window;
 import java.awt.event.FocusEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.InputMethodEvent;
@@ -213,6 +212,7 @@ public class WLComponentPeer implements ComponentPeer
         this.visible = v;
         if (this.visible) {
             nativeShowComponent(nativePtr, getParentNativePtr(target), target.getX(), target.getY());
+            WLToolkit.registerWLSurface(getWLSurface(), this);
             ((WLSurfaceData)surfaceData).initSurface(this, background != null ? background.getRGB() : 0, target.getWidth(), target.getHeight());
             PaintEvent event = PaintEventDispatcher.getPaintEventDispatcher().
                     createPaintEvent(target, 0, 0, target.getWidth(), target.getHeight());
@@ -220,6 +220,7 @@ public class WLComponentPeer implements ComponentPeer
                 WLToolkit.postEvent(WLToolkit.targetToAppContext(event.getSource()), event);
             }
         } else {
+            WLToolkit.unregisterWLSurface(getWLSurface());
             nativeHideFrame(nativePtr);
         }
     }
@@ -450,6 +451,7 @@ public class WLComponentPeer implements ComponentPeer
 
     @Override
     public void dispose() {
+        WLToolkit.unregisterWLSurface(getWLSurface());
         nativeDisposeFrame(nativePtr);
     }
 
